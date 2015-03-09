@@ -30,12 +30,16 @@ public class ArffDataSetReader extends DataSetReader {
 		super(file);
 	}
 
-	@Override
-	public DataSet read() throws Exception {
+    @Override
+    public DataSet read() throws Exception {
+        return read(-1, 0);
+    }
+
+	public DataSet read(int labelIndex, int splitLabel) throws Exception {
 		BufferedReader in = new BufferedReader(new FileReader(file));
 		try {
     		List<Map<String, Double>> attributes = processAttributes(in);
-    		Instance[] instances = processInstances(in, attributes);
+            Instance[] instances = processInstances(in, labelIndex, splitLabel, attributes);
     		DataSet set = new DataSet(instances);
     		set.setDescription(new DataSetDescription(set));
     		return set;
@@ -78,7 +82,7 @@ public class ArffDataSetReader extends DataSetReader {
 		return attributes;
 	}
 
-	private Instance[] processInstances(BufferedReader in,
+	private Instance[] processInstances(BufferedReader in, int labelIndex, int splitLabels,
 			List<Map<String, Double>> valueMaps) throws IOException {
 		List<Instance> instances = new ArrayList<Instance>();
 		String line = in.readLine();
@@ -86,7 +90,8 @@ public class ArffDataSetReader extends DataSetReader {
 		while (line != null) {
 			if (!line.isEmpty() && line.charAt(0) != '%') {
 				String[] values = pattern.split(line.trim());
-				double[] ins = new double[values.length];
+                double[] ins = new double[values.length - (labelIndex < 0 ? 0 : 1)];
+                double[] lbl = new double[splitLabels == 0 ? 1 : splitLabels];
 				for (int i = 0; i < values.length; i++) {
 				    //some values are single quoted (especially in datafiles bundled
 				    // with weka)
@@ -101,9 +106,20 @@ public class ArffDataSetReader extends DataSetReader {
 							d = valueMaps.get(i).get(v);
 						}
 	                }
-					ins[i] = d;
+                    if (i == labelIndex) {   // if d is the label value
+                        if (splitLabels == 0)
+                            lbl[0] = d;
+                        else
+                            lbl[(int)d] = 1.0;
+                    }
+                    else if (i < labelIndex) // before the label index
+                        ins[i] = d;
+                    else                     // after the label index
+                        ins[i-1] = d;
 				}
 				Instance i = new Instance(ins);
+                Instance label = (splitLabels == 0 ? new Instance(lbl[0]) : new Instance(lbl));
+                i.setLabel(label);
 				instances.add(i);
 			}
 			line = in.readLine();
