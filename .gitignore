@@ -8,3 +8,4 @@ ABAGAIL.jar
 *.ear
 manifest.mf
 /bin
+.cache
