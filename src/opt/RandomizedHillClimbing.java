@@ -10,6 +10,11 @@ import shared.Instance;
 public class RandomizedHillClimbing extends OptimizationAlgorithm {
     
     /**
+     * The number of times to restart
+     */
+    private int numRestarts;
+    
+    /**
      * The current optimization data
      */
     private Instance cur;
@@ -23,7 +28,15 @@ public class RandomizedHillClimbing extends OptimizationAlgorithm {
      * Make a new randomized hill climbing
      */
     public RandomizedHillClimbing(HillClimbingProblem hcp) {
+    	this(0, hcp);
+    }
+    
+    /**
+     * Make a new randomized hill climbing with random restarts
+     */
+    public RandomizedHillClimbing(int numRestarts, HillClimbingProblem hcp) {
         super(hcp);
+        this.numRestarts = numRestarts;
         cur = hcp.random();
         curVal = hcp.value(cur);
     }
@@ -33,11 +46,13 @@ public class RandomizedHillClimbing extends OptimizationAlgorithm {
      */
     public double train() {
         HillClimbingProblem hcp = (HillClimbingProblem) getOptimizationProblem();
-        Instance neigh = hcp.neighbor(cur);
-        double neighVal = hcp.value(neigh);
-        if (neighVal > curVal) {
-            curVal = neighVal;
-            cur = neigh;
+        for (int i=0; i < numRestarts + 1; i++) {
+            Instance neigh = hcp.neighbor(cur);
+            double neighVal = hcp.value(neigh);
+            if (neighVal > curVal) {
+                curVal = neighVal;
+                cur = neigh;
+            }
         }
         return curVal;
     }
