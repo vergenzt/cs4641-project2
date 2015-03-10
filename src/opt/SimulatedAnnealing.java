@@ -10,8 +10,6 @@ import shared.Instance;
  * @version 1.0
  */
 public class SimulatedAnnealing extends OptimizationAlgorithm {
-
-	public static final double EPSILON = 1e-6;
     
     /**
      * The current optimiation data
@@ -34,21 +32,21 @@ public class SimulatedAnnealing extends OptimizationAlgorithm {
     private double t0;
     
     /**
-     * The cooling parameter
+     * The number of iterations to run
      */
-    private double cooling;
+    private int iterations;
     
     /**
      * Make a new simulated annealing hill climbing
      * @param t the starting temperature
-     * @param cooling the cooling exponent
+     * @param iterations the number of iterations to run
      * @param hcp the problem to solve
      */
-    public SimulatedAnnealing(double t, double cooling, HillClimbingProblem hcp) {
+    public SimulatedAnnealing(double t, int iterations, HillClimbingProblem hcp) {
         super(hcp);
         this.t = t;
         this.t0 = t;
-        this.cooling = cooling;
+        this.iterations = iterations;
         this.cur = hcp.random();
         this.curVal = hcp.value(cur);
     }
@@ -58,15 +56,18 @@ public class SimulatedAnnealing extends OptimizationAlgorithm {
      */
     public double train() {
         HillClimbingProblem p = (HillClimbingProblem) getOptimizationProblem();
-        Instance neigh = p.neighbor(cur);
-        double neighVal = p.value(neigh);
-        if (neighVal > curVal || Distribution.random.nextDouble() < 
-                Math.exp((neighVal - curVal) / t)) {
-            curVal = neighVal;
-            cur = neigh;
+        double dt = t0 / iterations;
+        while (t > 0) {
+            Instance neigh = p.neighbor(cur);
+            double neighVal = p.value(neigh);
+            double pr = Math.exp((neighVal - curVal) / t);
+			if (neighVal > curVal || Distribution.random.nextDouble() < pr) {
+                curVal = neighVal;
+                cur = neigh;
+            }
+            t -= dt;
         }
-        t *= cooling;
-        return (t <= EPSILON) ? curVal : train();
+        return curVal;
     }
 
     /**
@@ -77,7 +78,7 @@ public class SimulatedAnnealing extends OptimizationAlgorithm {
     }
     
     public String toString() {
-    	return String.format("SimulatedAnnealing(t0=%e,c=%e)", t0, cooling);
+    	return String.format("SimulatedAnnealing(t0=%e,n=%d)", t0, iterations);
     }
 
 }
