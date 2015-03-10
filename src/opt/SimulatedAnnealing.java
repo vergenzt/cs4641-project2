@@ -27,6 +27,11 @@ public class SimulatedAnnealing extends OptimizationAlgorithm {
     private double t;
     
     /**
+     * The initial temperature
+     */
+    private double t0;
+    
+    /**
      * The cooling parameter
      */
     private double cooling;
@@ -40,6 +45,7 @@ public class SimulatedAnnealing extends OptimizationAlgorithm {
     public SimulatedAnnealing(double t, double cooling, HillClimbingProblem hcp) {
         super(hcp);
         this.t = t;
+        this.t0 = t;
         this.cooling = cooling;
         this.cur = hcp.random();
         this.curVal = hcp.value(cur);
@@ -66,6 +72,10 @@ public class SimulatedAnnealing extends OptimizationAlgorithm {
      */
     public Instance getOptimal() {
         return cur;
+    }
+    
+    public String toString() {
+    	return String.format("SimulatedAnnealing(t0=%f,c=%f)", t0, cooling);
     }
 
 }

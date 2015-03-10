@@ -140,5 +140,9 @@ public class StandardGeneticAlgorithm extends OptimizationAlgorithm {
         }
         return population[best];
     }
+    
+    public String toString() {
+    	return String.format("GeneticAlgorithm(N=%d,toMate=%d,toMutate=%d)", populationSize, toMate, toMutate);
+    }
 
 }

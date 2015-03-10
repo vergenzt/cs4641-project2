@@ -101,5 +101,9 @@ public class MIMIC extends OptimizationAlgorithm {
         distribution.estimate(new DataSet(kept));
         return cutoff;
     }
+    
+    public String toString() {
+    	return String.format("MIMIC(N=%d,toKeep=%d)", samples, tokeep);
+    }
 
 }

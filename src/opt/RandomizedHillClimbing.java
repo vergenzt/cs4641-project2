@@ -49,4 +49,7 @@ public class RandomizedHillClimbing extends OptimizationAlgorithm {
         return cur;
     }
 
+    public String toString() {
+    	return "RandomizedHillClimbing";
+    }
 }
