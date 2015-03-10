@@ -75,7 +75,7 @@ public class SimulatedAnnealing extends OptimizationAlgorithm {
     }
     
     public String toString() {
-    	return String.format("SimulatedAnnealing(t0=%f,c=%f)", t0, cooling);
+    	return String.format("SimulatedAnnealing(t0=%e,c=%e)", t0, cooling);
     }
 
 }
