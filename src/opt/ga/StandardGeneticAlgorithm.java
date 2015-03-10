@@ -1,9 +1,9 @@
 package opt.ga;
 
+import java.util.Collections;
 import java.util.Random;
 
 import dist.DiscreteDistribution;
-
 import opt.OptimizationAlgorithm;
 import shared.Instance;
 
@@ -39,6 +39,11 @@ public class StandardGeneticAlgorithm extends OptimizationAlgorithm {
     private int toMutate;
     
     /**
+     * The number of iterations to train
+     */
+    private int iterations;
+    
+    /**
      * The population
      */
     private Instance[] population;
@@ -53,12 +58,14 @@ public class StandardGeneticAlgorithm extends OptimizationAlgorithm {
      * @param populationSize the size
      * @param toMate the number to mate each iteration
      * @param toMutate the number to mutate each iteration
+     * @param iteration the number of iterations to train
      * @param gap the problem to solve
      */
-    public StandardGeneticAlgorithm(int populationSize, int toMate, int toMutate, GeneticAlgorithmProblem gap) {
+    public StandardGeneticAlgorithm(int populationSize, int toMate, int toMutate, int iterations, GeneticAlgorithmProblem gap) {
         super(gap);
         this.toMate = toMate;
         this.toMutate = toMutate;
+        this.iterations = iterations;
         this.populationSize = populationSize;
         population = new Instance[populationSize];
         for (int i = 0; i < population.length; i++) {
@@ -75,53 +82,55 @@ public class StandardGeneticAlgorithm extends OptimizationAlgorithm {
      */
     public double train() {
         GeneticAlgorithmProblem ga = (GeneticAlgorithmProblem) getOptimizationProblem();
-        double[] probabilities = new double[population.length];
-        // calculate probability distribution over the population
-        double sum = 0;
-        for (int i = 0; i < probabilities.length; i++) {
-            probabilities[i] = values[i];
-            sum += probabilities[i];
+        for (int iteration=0; iteration < iterations; iteration++) {
+	        double[] probabilities = new double[population.length];
+	        // calculate probability distribution over the population
+	        double sum = 0;
+	        for (int i = 0; i < probabilities.length; i++) {
+	            probabilities[i] = values[i];
+	            sum += probabilities[i];
+	        }
+	        if (Double.isInfinite(sum)) {
+	            return sum;
+	        }
+	        for (int i = 0; i < probabilities.length; i++) {
+	            probabilities[i] /= sum;
+	        }
+	        DiscreteDistribution dd = new DiscreteDistribution(probabilities);
+	  
+	        // make the children
+	        double[] newValues = new double[populationSize];
+	        Instance[] newPopulation = new Instance[populationSize];
+	        for (int i = 0; i < toMate; i++) {
+	            // pick the mates
+	            Instance a = population[dd.sample(null).getDiscrete()];
+	            Instance b = population[dd.sample(null).getDiscrete()];
+	            // make the kid
+	            newPopulation[i] = ga.mate(a, b);
+	            newValues[i] = -1;
+	        }
+	        // elite for the rest
+	        for (int i = toMate; i < newPopulation.length; i++) {
+	            int j = dd.sample(null).getDiscrete();
+	            newPopulation[i] = population[j];
+	            newValues[i] = values[j];
+	        }
+	        // mutate
+	        for (int i = 0; i < toMutate; i++) {
+	            ga.mutate(newPopulation[random.nextInt(newPopulation.length)]);
+	            newValues[i] = -1;
+	        }
+	        // calculate the new values
+	        for (int i = 0; i < newValues.length; i++) {
+	            if (newValues[i] == -1) {
+	                newValues[i] = ga.value(newPopulation[i]);
+	            }
+	        }
+	        // the new generation
+	        population = newPopulation;
+	        values = newValues;
         }
-        if (Double.isInfinite(sum)) {
-            return sum;
-        }
-        for (int i = 0; i < probabilities.length; i++) {
-            probabilities[i] /= sum;
-        }
-        DiscreteDistribution dd = new DiscreteDistribution(probabilities);
-  
-        // make the children
-        double[] newValues = new double[populationSize];
-        Instance[] newPopulation = new Instance[populationSize];
-        for (int i = 0; i < toMate; i++) {
-            // pick the mates
-            Instance a = population[dd.sample(null).getDiscrete()];
-            Instance b = population[dd.sample(null).getDiscrete()];
-            // make the kid
-            newPopulation[i] = ga.mate(a, b);
-            newValues[i] = -1;
-        }
-        // elite for the rest
-        for (int i = toMate; i < newPopulation.length; i++) {
-            int j = dd.sample(null).getDiscrete();
-            newPopulation[i] = population[j];
-            newValues[i] = values[j];
-        }
-        // mutate
-        for (int i = 0; i < toMutate; i++) {
-            ga.mutate(newPopulation[random.nextInt(newPopulation.length)]);
-            newValues[i] = -1;
-        }
-        // calculate the new values
-        for (int i = 0; i < newValues.length; i++) {
-            if (newValues[i] == -1) {
-                newValues[i] = ga.value(newPopulation[i]);
-            }
-        }
-        // the new generation
-        population = newPopulation;
-        values = newValues;
-        return sum / populationSize;
+        return ga.value(getOptimal());
     }
 
     /**
@@ -142,7 +151,7 @@ public class StandardGeneticAlgorithm extends OptimizationAlgorithm {
     }
     
     public String toString() {
-    	return String.format("GeneticAlgorithm(N=%d,toMate=%d,toMutate=%d)", populationSize, toMate, toMutate);
+    	return String.format("GeneticAlgorithm(N=%d,toMate=%d,toMutate=%d,iterations=%d)", populationSize, toMate, toMutate, iterations);
     }
 
 }
