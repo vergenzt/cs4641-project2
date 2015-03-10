@@ -10,6 +10,8 @@ import shared.Instance;
  * @version 1.0
  */
 public class SimulatedAnnealing extends OptimizationAlgorithm {
+
+	public static final double EPSILON = 1e-6;
     
     /**
      * The current optimiation data
@@ -64,7 +66,7 @@ public class SimulatedAnnealing extends OptimizationAlgorithm {
             cur = neigh;
         }
         t *= cooling;
-        return curVal;
+        return (t <= EPSILON) ? curVal : train();
     }
 
     /**
