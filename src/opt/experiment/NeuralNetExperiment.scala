@@ -1,7 +1,6 @@
 package opt.experiment
 
 import scala.annotation.migration
-
 import opt.HillClimbingProblem
 import opt.OptimizationProblem
 import opt.RandomizedHillClimbing
@@ -9,6 +8,11 @@ import opt.SimulatedAnnealing
 import opt.example.CitibikeProblem
 import opt.ga.GeneticAlgorithmProblem
 import opt.ga.StandardGeneticAlgorithm
+import shared.tester.NeuralNetworkTester
+import sun.swing.AccumulativeRunnable
+import shared.tester.AccuracyTestMetric
+import shared.reader.ArffDataSetReader
+import shared.reader.DataSetLabelBinarySeperator
 
 object NeuralNetExperiment {
 
@@ -37,23 +41,35 @@ object NeuralNetExperiment {
       val algorithm = algorithmGenerator(problem)
       print(s"\rRunning $algorithm on $problem: ${progressBar(0, 10)}")
 
-      val Seq(avgBestFitness, avgTimeMillis) = averageOf(10) { i =>
+      val Seq(avgBestFitness, avgAccuracy, avgTimeMillis) = averageOf(10) { i =>
         val problem = problemGenerator()
         val algorithm = algorithmGenerator(problem)
         print(s"\rRunning $algorithm on $problem: ${progressBar(i+1, 10)}")
 
-        val (bestFitness, timeMillis) = time {
+        val (bestX, timeMillis) = time {
           algorithm.train()
-          problem.value(algorithm.getOptimal)
+          algorithm.getOptimal
         }
-        Seq(bestFitness, timeMillis)
+        val bestFitness = problem.value(bestX)
+
+        // test on NN test data
+        val accuracy = if (problem.isInstanceOf[CitibikeProblem]) {
+          val accuracyMetric = new AccuracyTestMetric
+          val tester = new NeuralNetworkTester(problem.network, accuracyMetric)
+          val testData = new ArffDataSetReader(testFile).read(29)
+          DataSetLabelBinarySeperator.seperateLabels(testData)
+          tester.test(testData.getInstances)
+          accuracyMetric.getPctCorrect
+        } else -1
+
+        Seq(bestFitness, accuracy, timeMillis)
       }
 
-      Seq(problem.toString, algorithm.toString, avgBestFitness, avgTimeMillis)
+      Seq(problem.toString, algorithm.toString, avgBestFitness, avgAccuracy, avgTimeMillis)
     }
 
     println
-    val header = Seq("Problem", "Algorithm", "AvgBestFitness", "AvgTimeMillis")
+    val header = Seq("Problem", "Algorithm", "AvgBestFitness", "AvgAccuracy", "AvgTimeMillis")
     printTabular(header +: results.sortBy(-1*_(2).asInstanceOf[Double]))
 
   }

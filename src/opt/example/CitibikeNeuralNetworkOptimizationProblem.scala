@@ -7,6 +7,7 @@ import shared.DataSet
 import shared.ErrorMeasure
 import shared.SumOfSquaresError
 import shared.reader.ArffDataSetReader
+import shared.reader.DataSetLabelBinarySeperator
 
 class CitibikeProblem(
   val trainFilename: String,
@@ -21,8 +22,9 @@ class CitibikeProblem(
 
 object CitibikeProblem {
   def apply(trainFilename: String, testFilename: String) = {
-    val data = new ArffDataSetReader(trainFilename).read(29, 8)
-    val numInput = 30
+    val data = new ArffDataSetReader(trainFilename).read(29)
+    DataSetLabelBinarySeperator.seperateLabels(data)
+    val numInput = 29
     val numOutput = 8
     val numHidden = (numInput + numOutput) / 2
     val factory = new FeedForwardNeuralNetworkFactory()
