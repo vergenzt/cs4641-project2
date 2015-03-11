@@ -1,0 +1,33 @@
+@relation citibike_discretized-8bins-eqwidth-weka.filters.unsupervised.attribute.NominalToBinary-Rfirst-last-weka.filters.unsupervised.attribute.Normalize-S1.0-T0.0
+
+@attribute dayinyear numeric
+@attribute hour numeric
+@attribute TemperatureF numeric
+@attribute 'Dew PointF' numeric
+@attribute Humidity numeric
+@attribute 'Sea Level PressureIn' numeric
+@attribute VisibilityMPH numeric
+@attribute 'Wind SpeedMPH' numeric
+@attribute 'Gust SpeedMPH' numeric
+@attribute PrecipitationIn numeric
+@attribute Events=Fog-Rain numeric
+@attribute Events=Rain numeric
+@attribute Events=Snow numeric
+@attribute Events=Fog-Snow numeric
+@attribute Events=Fog numeric
+@attribute 'Conditions=Mostly Cloudy' numeric
+@attribute Conditions=Overcast numeric
+@attribute 'Conditions=Light Rain' numeric
+@attribute 'Conditions=Heavy Rain' numeric
+@attribute 'Conditions=Scattered Clouds' numeric
+@attribute Conditions=Clear numeric
+@attribute 'Conditions=Partly Cloudy' numeric
+@attribute Conditions=Rain numeric
+@attribute Conditions=Haze numeric
+@attribute Conditions=Unknown numeric
+@attribute 'Conditions=Light Snow' numeric
+@attribute Conditions=Snow numeric
+@attribute 'Conditions=Heavy Snow' numeric
+@attribute 'Conditions=Light Freezing Rain' numeric
+@attribute Conditions=Fog numeric
+@attribute numtrips {0,1,2,3,4,5,6,7}
