@@ -15,6 +15,12 @@ public class RandomizedHillClimbing extends OptimizationAlgorithm {
     private int numRestarts;
     
     /**
+     * The number of lower-fitness neighbors to check before
+     * deciding we're at the top of a hill
+     */
+    private int numPlateauChecks;
+    
+    /**
      * The current optimization data
      */
     private Instance cur;
@@ -28,15 +34,16 @@ public class RandomizedHillClimbing extends OptimizationAlgorithm {
      * Make a new randomized hill climbing
      */
     public RandomizedHillClimbing(HillClimbingProblem hcp) {
-    	this(0, hcp);
+    	this(0, 5, hcp);
     }
     
     /**
-     * Make a new randomized hill climbing with random restarts
+     * Make a new randomized hill climbing with random restarts and a number of plateau checks.
      */
-    public RandomizedHillClimbing(int numRestarts, HillClimbingProblem hcp) {
+    public RandomizedHillClimbing(int numRestarts, int numPlateauChecks, HillClimbingProblem hcp) {
         super(hcp);
         this.numRestarts = numRestarts;
+        this.numPlateauChecks = numPlateauChecks;
         cur = hcp.random();
         curVal = hcp.value(cur);
     }
@@ -46,14 +53,29 @@ public class RandomizedHillClimbing extends OptimizationAlgorithm {
      */
     public double train() {
         HillClimbingProblem hcp = (HillClimbingProblem) getOptimizationProblem();
+        Instance bestCur = null;
+        double bestCurVal = Double.NEGATIVE_INFINITY;
         for (int i=0; i < numRestarts + 1; i++) {
-            Instance neigh = hcp.neighbor(cur);
-            double neighVal = hcp.value(neigh);
-            if (neighVal > curVal) {
-                curVal = neighVal;
-                cur = neigh;
-            }
+        	int numPlateauNeighborsChecked = 0;
+        	while (numPlateauNeighborsChecked < numPlateauChecks) {
+	            Instance neigh = hcp.neighbor(cur);
+	            double neighVal = hcp.value(neigh);
+	            if (neighVal > curVal) {
+	            	numPlateauNeighborsChecked = 0;
+	                curVal = neighVal;
+	                cur = neigh;
+	            }
+	            else {
+	            	numPlateauNeighborsChecked++;
+	            }
+        	}
+        	if (curVal > bestCurVal) {
+        		bestCur = cur;
+        		bestCurVal = curVal;
+        	}
         }
+        cur = bestCur;
+        curVal = bestCurVal;
         return curVal;
     }
 
@@ -65,6 +87,6 @@ public class RandomizedHillClimbing extends OptimizationAlgorithm {
     }
 
     public String toString() {
-    	return "RandomizedHillClimbing";
+    	return String.format("RandomizedHillClimbing(restarts=%d,numPlateauChecks=%d)", numRestarts, numPlateauChecks);
     }
 }
