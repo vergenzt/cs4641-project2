@@ -68,6 +68,6 @@ public class DataSetLabelBinarySeperator {
             }
         }
         //max will be the max value (between 0 and 1), and maxInx will be 
-        return new Instance(max + maxInx - 1);
+        return new Instance(maxInx);
     }
 }
