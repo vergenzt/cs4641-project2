@@ -2,19 +2,21 @@ package opt.experiment
 
 import opt.OptimizationAlgorithm
 import opt.example.CitibikeProblem
-import Util.averageOf
-import Util.testNNAccuracy
-import Util.time
 import opt.OptimizationProblem
+import java.io.File
+import java.util.Date
+import java.io.FileOutputStream
 
 abstract class Experiment[Problem <: OptimizationProblem] {
+  import Util._
 
   def main(args: Array[String]) = runTest
 
+  // abstract members
   def runTest: Unit
-
   def generateProblem: Problem with EvaluationCount
 
+  // everything else...
   private var problem: Problem with EvaluationCount = _
   private var algorithm: OptimizationAlgorithm = _
 

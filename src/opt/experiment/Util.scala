@@ -27,6 +27,10 @@ object Util {
     Seq.fill(n)(block).transpose.map(_.sum / n)
   }
 
+  def maxOf(n: Int)(block: => Double) = {
+    Seq.fill(n)(block).max
+  }
+
   def progressBar(i: Int, n: Int): String = {
     "[" + "="*(i-1) + (if (i>0) ">" else "") + " "*(n-i) + "]"
   }

@@ -34,9 +34,9 @@ abstract class NeuralNetExperiment extends Experiment[CitibikeProblem] {
   ))
 
   def testSA = test(Seq[CitibikeProblem => OptimizationAlgorithm](
-    (problem) => new SimulatedAnnealing(100, 10, problem),
-    (problem) => new SimulatedAnnealing(100, 25, problem),
-    (problem) => new SimulatedAnnealing(10, 100, problem)
+    (problem) => new SimulatedAnnealing(100, 10, 10, problem),
+    (problem) => new SimulatedAnnealing(100, 25, 10, problem),
+    (problem) => new SimulatedAnnealing(10, 100, 10, problem)
   ))
 
   def testGA = test(Seq[CitibikeProblem => OptimizationAlgorithm](
