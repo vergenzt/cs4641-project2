@@ -1,99 +1,88 @@
 package opt.experiment
 
-import scala.annotation.migration
-import opt.HillClimbingProblem
-import opt.OptimizationProblem
+import scala.collection.mutable
+import func.nn.NeuralNetwork
+import opt.OptimizationAlgorithm
 import opt.RandomizedHillClimbing
 import opt.SimulatedAnnealing
 import opt.example.CitibikeProblem
-import opt.ga.GeneticAlgorithmProblem
-import opt.ga.StandardGeneticAlgorithm
-import shared.tester.NeuralNetworkTester
-import sun.swing.AccumulativeRunnable
-import shared.tester.AccuracyTestMetric
-import shared.reader.ArffDataSetReader
 import shared.reader.DataSetLabelBinarySeperator
+import shared.tester.AccuracyTestMetric
+import shared.tester.NeuralNetworkTester
+import scala.util.Random
+import opt.ga.StandardGeneticAlgorithm
 
-object NeuralNetExperiment {
+object TestRHC extends NeuralNetExperiment { def runTest = testRHC }
+object TestSA extends NeuralNetExperiment { def runTest = testSA }
+object TestGA extends NeuralNetExperiment { def runTest = testGA }
+object TestAll extends NeuralNetExperiment {
+  def runTest = {
+    testRHC
+    testSA
+    testGA
+  }
+}
 
-  val trainFile = "/home/tim/Schoolwork/CS4641/project2/ABAGAIL/data/citibike_discretized-8bins-eqwidth_normalized.train.arff"
-  val testFile = "/home/tim/Schoolwork/CS4641/project2/ABAGAIL/data/citibike_discretized-8bins-eqwidth_normalized.test.arff"
+abstract class NeuralNetExperiment {
+  import Util._
 
-  def testCases = Seq(
-    (() => CitibikeProblem.apply(trainFile, testFile),
-      Seq(
-        (problem: OptimizationProblem) => new RandomizedHillClimbing(problem.asInstanceOf[HillClimbingProblem]),
-        (problem: OptimizationProblem) => new SimulatedAnnealing(1000, 1000, problem.asInstanceOf[HillClimbingProblem]),
-        (problem: OptimizationProblem) => new StandardGeneticAlgorithm(200, 100, 10, 100, problem.asInstanceOf[GeneticAlgorithmProblem])
-      )
-    )
-  )
+  val trainFile = "/citibike_discretized-8bins-eqwidth_normalized.train.csv"
+  val testFile = "/citibike_discretized-8bins-eqwidth_normalized.test.csv"
 
-  def main(args: Array[String]) = {
+  def main(args: Array[String]) = runTest
 
-    println("Beginning simulations...")
+  def runTest: Unit
 
-    val results = for {
-      (problemGenerator, algorithmGenerators) <- testCases
-      algorithmGenerator <- algorithmGenerators
-    } yield {
-      val problem = problemGenerator()
-      val algorithm = algorithmGenerator(problem)
-      print(s"\rRunning $algorithm on $problem: ${progressBar(0, 10)}")
+  def testRHC = test(Seq[CitibikeProblem => OptimizationAlgorithm](
+    (problem) => new RandomizedHillClimbing(0, 5, problem),
+    (problem) => new RandomizedHillClimbing(5, 5, problem),
+    (problem) => new RandomizedHillClimbing(10, 5, problem),
+    (problem) => new RandomizedHillClimbing(25, 5, problem),
+    (problem) => new RandomizedHillClimbing(50, 5, problem)
+  ))
 
-      val Seq(avgBestFitness, avgAccuracy, avgTimeMillis) = averageOf(10) { i =>
-        val problem = problemGenerator()
-        val algorithm = algorithmGenerator(problem)
-        print(s"\rRunning $algorithm on $problem: ${progressBar(i+1, 10)}")
+  def testSA = test(Seq[CitibikeProblem => OptimizationAlgorithm](
+    (problem) => new SimulatedAnnealing(100, 10, problem),
+    (problem) => new SimulatedAnnealing(100, 25, problem),
+    (problem) => new SimulatedAnnealing(10, 100, problem)
+  ))
 
-        val (bestX, timeMillis) = time {
-          algorithm.train()
-          algorithm.getOptimal
-        }
-        val bestFitness = problem.value(bestX)
+  def testGA = test(Seq[CitibikeProblem => OptimizationAlgorithm](
+    (problem) => new StandardGeneticAlgorithm(50, 20, 10, 200, problem),
+    (problem) => new StandardGeneticAlgorithm(200, 20, 10, 200, problem),
+    (problem) => new StandardGeneticAlgorithm(200, 40, 10, 200, problem)
+  ))
 
-        // test on NN test data
-        val accuracy = if (problem.isInstanceOf[CitibikeProblem]) {
-          val accuracyMetric = new AccuracyTestMetric
-          val tester = new NeuralNetworkTester(problem.network, accuracyMetric)
-          val testData = new ArffDataSetReader(testFile).read(29)
-          DataSetLabelBinarySeperator.seperateLabels(testData)
-          tester.test(testData.getInstances)
-          accuracyMetric.getPctCorrect
-        } else -1
+  def test(algorithmGenerators: Seq[CitibikeProblem => OptimizationAlgorithm]): Unit = {
+    val out = Console.out
+    val err = Console.err
 
-        Seq(bestFitness, accuracy, timeMillis)
+    // Neural Nets test
+    for (algorithmGen <- algorithmGenerators) {
+      var problem: CitibikeProblem = null
+      var algorithm: OptimizationAlgorithm = null
+      var i = 0
+
+      val Seq(avgTimeMillis, avgEvaluationCount, avgFitness, avgTrainAccuracy, avgTestAccuracy) = averageOf(10) {
+        problem = CitibikeProblem(trainFile)
+        algorithm = algorithmGen(problem)
+        if (i == 0) err.print(s"Running $algorithm on $problem")
+
+        val (_, timeMillis) = time(algorithm.train())
+        val X = algorithm.getOptimal
+        val fitness = problem.value(X)
+        val trainAccuracy = testNNAccuracy(problem.network, trainFile)
+        val testAccuracy = testNNAccuracy(problem.network, testFile)
+
+        err.print(".")
+        i += 1
+
+        Seq(timeMillis, problem.evaluationCount, fitness, trainAccuracy, testAccuracy)
       }
+      err.println
+      err.flush
 
-      Seq(problem.toString, algorithm.toString, avgBestFitness, avgAccuracy, avgTimeMillis)
+      out.println(s"$problem, $algorithm, $avgTimeMillis, $avgEvaluationCount, $avgFitness, $avgTrainAccuracy, $avgTestAccuracy")
     }
-
-    println
-    val header = Seq("Problem", "Algorithm", "AvgBestFitness", "AvgAccuracy", "AvgTimeMillis")
-    printTabular(header +: results.sortBy(-1*_(2).asInstanceOf[Double]))
-
-  }
-
-  private def time[A](block: => A): (A, Long) = {
-    val start = System.nanoTime
-    val ret = block
-    val end = System.nanoTime
-    (ret, (end - start)/1000)
-  }
-
-  private def averageOf(n: Int)(block: Int => Seq[Double]) = {
-    Seq.tabulate(n)(block).transpose.map(_.sum / n)
-  }
-
-  private def progressBar(i: Int, n: Int): String = {
-    "[" + "="*(i-1) + (if (i>0) ">" else "") + " "*(n-i) + "]"
-  }
-
-  private def printTabular(data: Seq[Seq[Any]]) = {
-    val strings = data.map(_.map(_.toString))
-    val widths = strings.transpose.map(_.map(_.length).max)
-    strings.foreach(row => println(row.zip(widths)
-        .map({case (value,width) => " "*(width-value.length) + value})
-        .mkString(" | ")))
   }
 }
