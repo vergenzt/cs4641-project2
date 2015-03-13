@@ -112,7 +112,7 @@ public class MIMIC extends OptimizationAlgorithm {
     }
     
     public String toString() {
-    	return String.format("MIMIC(N=%d,toKeep=%d)", samples, tokeep);
+    	return String.format("MIMIC(N=%d,toKeep=%d,iterations=%d)", samples, tokeep, iterations);
     }
 
 }
