@@ -41,7 +41,7 @@ abstract class Experiment {
     } {
       var i = 0
 
-      val avgMetrics = averageOf(50) {
+      val avgMetrics = averageOf(10) {
         problem = problemGen()
         algorithm = algorithmGen(problem)
 
