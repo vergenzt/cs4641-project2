@@ -31,6 +31,11 @@ public class MIMIC extends OptimizationAlgorithm {
      * The number of samples to keep
      */
     private int tokeep;
+    
+    /**
+     * The number of iterations to run
+     */
+    private int iterations;
 
     /**
      * Make a new mimic
@@ -41,10 +46,11 @@ public class MIMIC extends OptimizationAlgorithm {
      * @param stoppingCount the minimum number of good samples needed to continue
      * @param op the problem
      */
-    public MIMIC(int samples, int tokeep, ProbabilisticOptimizationProblem op) {
+    public MIMIC(int samples, int tokeep, int iterations, ProbabilisticOptimizationProblem op) {
         super(op);
         this.tokeep = tokeep;
         this.samples = samples;
+        this.iterations = iterations;
         Instance[] data = new Instance[samples];
         for (int i = 0; i < data.length; i++) {
             data[i] = op.random();
@@ -79,26 +85,29 @@ public class MIMIC extends OptimizationAlgorithm {
      */
     public double train() {
         ProbabilisticOptimizationProblem op = (ProbabilisticOptimizationProblem) getOptimizationProblem();
-        Instance[] data = new Instance[samples];
-        for (int i = 0; i < data.length; i++) {
-            data[i] = distribution.sample(null);
-        } 
-        double[] values = new double[data.length];
-        for (int i = 0; i < data.length; i++) {
-            values[i] = op.value(data[i]);
+        double cutoff = Double.NEGATIVE_INFINITY;
+        for (int iter=0; iter < iterations; iter++) {
+	        Instance[] data = new Instance[samples];
+	        for (int i = 0; i < data.length; i++) {
+	            data[i] = distribution.sample(null);
+	        } 
+	        double[] values = new double[data.length];
+	        for (int i = 0; i < data.length; i++) {
+	            values[i] = op.value(data[i]);
+	        }
+	        double[] temp = new double[values.length];
+	        System.arraycopy(values, 0, temp, 0, temp.length);
+	        cutoff = ABAGAILArrays.randomizedSelect(temp, temp.length - tokeep);
+	        int j = 0;
+	        Instance[] kept = new Instance[tokeep];
+	        for (int i = 0; i < data.length && j < kept.length; i++) {
+	            if (values[i] >= cutoff) {
+	                kept[j] = data[i];
+	                j++;
+	            }
+	        }
+	        distribution.estimate(new DataSet(kept));
         }
-        double[] temp = new double[values.length];
-        System.arraycopy(values, 0, temp, 0, temp.length);
-        double cutoff = ABAGAILArrays.randomizedSelect(temp, temp.length - tokeep);
-        int j = 0;
-        Instance[] kept = new Instance[tokeep];
-        for (int i = 0; i < data.length && j < kept.length; i++) {
-            if (values[i] >= cutoff) {
-                kept[j] = data[i];
-                j++;
-            }
-        }
-        distribution.estimate(new DataSet(kept));
         return cutoff;
     }
     
