@@ -12,13 +12,19 @@ import shared.SumOfSquaresError
 import shared.reader.DataSetLabelBinarySeperator
 import util.linalg.DenseVector
 import opt.experiment.EvaluationCount
+import opt.prob.ProbabilisticOptimizationProblem
+import dist.Distribution
 
 class CitibikeProblem(
   val trainFilename: String,
   val data: DataSet,
   val network: NeuralNetwork,
   val error: ErrorMeasure
-) extends NeuralNetworkOptimizationProblem(data, network, error) with EvaluationCount {
+) extends NeuralNetworkOptimizationProblem(data, network, error)
+    with ProbabilisticOptimizationProblem
+    with EvaluationCount {
+
+  override def getDistribution(): Distribution = ???
 
   override def toString = "Citibike"
 }
