@@ -30,19 +30,22 @@ abstract class NeuralNetExperiment extends Experiment[CitibikeProblem] {
     (problem) => new RandomizedHillClimbing(5, 5, problem),
     (problem) => new RandomizedHillClimbing(10, 5, problem),
     (problem) => new RandomizedHillClimbing(25, 5, problem),
-    (problem) => new RandomizedHillClimbing(50, 5, problem)
+    (problem) => new RandomizedHillClimbing(50, 5, problem),
+    (problem) => new RandomizedHillClimbing(100, 5, problem)
   ))
 
   def testSA = test(Seq[CitibikeProblem => OptimizationAlgorithm](
-    (problem) => new SimulatedAnnealing(100, 10, 10, problem),
-    (problem) => new SimulatedAnnealing(100, 25, 10, problem),
-    (problem) => new SimulatedAnnealing(10, 100, 10, problem)
+    (problem) => new SimulatedAnnealing(500, 10, 10, problem),
+    (problem) => new SimulatedAnnealing(500, 25, 10, problem),
+    (problem) => new SimulatedAnnealing(500, 50, 10, problem),
+    (problem) => new SimulatedAnnealing(500, 100, 10, problem)
   ))
 
   def testGA = test(Seq[CitibikeProblem => OptimizationAlgorithm](
-    (problem) => new StandardGeneticAlgorithm(50, 20, 10, 200, problem),
-    (problem) => new StandardGeneticAlgorithm(200, 20, 10, 200, problem),
-    (problem) => new StandardGeneticAlgorithm(200, 40, 10, 200, problem)
+    (problem) => new StandardGeneticAlgorithm(100, 50, 10, 10, problem),
+    (problem) => new StandardGeneticAlgorithm(100, 50, 10, 25, problem),
+    (problem) => new StandardGeneticAlgorithm(100, 50, 10, 50, problem),
+    (problem) => new StandardGeneticAlgorithm(100, 50, 10, 100, problem)
   ))
 
   override def generateTestMetrics(problem: CitibikeProblem with EvaluationCount, algorithm: OptimizationAlgorithm) = {
