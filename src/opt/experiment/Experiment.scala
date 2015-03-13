@@ -1,20 +1,28 @@
 package opt.experiment
 
+import Util.averageOf
+import Util.time
+import opt.HillClimbingProblem
 import opt.OptimizationAlgorithm
-import opt.example.CitibikeProblem
 import opt.OptimizationProblem
-import java.io.File
-import java.util.Date
-import java.io.FileOutputStream
+import opt.example.CitibikeProblem
+import opt.ga.GeneticAlgorithmProblem
+import opt.prob.MIMIC
+import opt.prob.ProbabilisticOptimizationProblem
+import scala.util.Try
 
-abstract class Experiment[Problem <: OptimizationProblem] {
+abstract class Experiment {
   import Util._
+  type Problem = OptimizationProblem
+    with HillClimbingProblem
+    with ProbabilisticOptimizationProblem
+    with GeneticAlgorithmProblem
 
   def main(args: Array[String]) = runTest
 
   // abstract members
   def runTest: Unit
-  def generateProblem: Problem with EvaluationCount
+  def problemGenerators: Seq[() => Problem with EvaluationCount]
 
   // everything else...
   private var problem: Problem with EvaluationCount = _
@@ -23,14 +31,20 @@ abstract class Experiment[Problem <: OptimizationProblem] {
   def test(algorithmGenerators: Seq[Problem => OptimizationAlgorithm]): Unit = {
     val out = Console.out
     val err = Console.err
+    err.close()
 
     // Neural Nets test
-    for (algorithmGen <- algorithmGenerators) {
+    for {
+      problemGen <- problemGenerators
+      algorithmGen <- algorithmGenerators
+      if (Try(algorithmGen(problemGen())).isSuccess)
+    } {
       var i = 0
 
-      val avgMetrics = averageOf(10) {
-        problem = generateProblem
+      val avgMetrics = averageOf(50) {
+        problem = problemGen()
         algorithm = algorithmGen(problem)
+
         if (i == 0) err.print(s"Running $algorithm on $problem")
 
         val metrics = generateTestMetrics(problem, algorithm)
@@ -43,7 +57,7 @@ abstract class Experiment[Problem <: OptimizationProblem] {
       err.println
       err.flush
 
-      out.println((Seq(problem, algorithm) ++ avgMetrics).mkString(", "))
+      out.println((Seq(problem, algorithm).map("\""+_+"\"") ++ avgMetrics).mkString(", "))
     }
   }
 

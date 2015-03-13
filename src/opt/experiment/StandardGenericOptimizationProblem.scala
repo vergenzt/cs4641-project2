@@ -38,4 +38,6 @@ class StandardGenericOptimizationProblem(val evalFn: EvaluationFunction, val N: 
 
   // Members declared in opt.prob.ProbabilisticOptimizationProblem
   def getDistribution(): dist.Distribution = df
+
+  override def toString = evalFn.getClass.getSimpleName.replace("EvaluationFunction", "")
 }
