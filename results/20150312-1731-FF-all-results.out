@@ -1,0 +1,14 @@
+opt.experiment.FlipFlopExperiment$$anon$1@14e73af3, RandomizedHillClimbing(restarts=0,numPlateauChecks=5), 2991.5, 11.3, 42.7
+opt.experiment.FlipFlopExperiment$$anon$1@552cf9bd, RandomizedHillClimbing(restarts=5,numPlateauChecks=5), 2499.6, 42.6, 48.2
+opt.experiment.FlipFlopExperiment$$anon$1@7f1e1a8e, RandomizedHillClimbing(restarts=10,numPlateauChecks=5), 1688.8, 71.4, 51.1
+opt.experiment.FlipFlopExperiment$$anon$1@20c7afdd, RandomizedHillClimbing(restarts=25,numPlateauChecks=5), 4199.6, 160.4, 59.4
+opt.experiment.FlipFlopExperiment$$anon$1@232c5bfc, RandomizedHillClimbing(restarts=50,numPlateauChecks=5), 4599.9, 291.8, 64.3
+opt.experiment.FlipFlopExperiment$$anon$1@38c2a17a, SimulatedAnnealing(t0=1.000000e+02,n=10,numRestarts=10), 800.0, 12.0, 39.9
+opt.experiment.FlipFlopExperiment$$anon$1@2b42fb92, SimulatedAnnealing(t0=1.000000e+02,n=25,numRestarts=10), 100.3, 27.0, 38.0
+opt.experiment.FlipFlopExperiment$$anon$1@58caafcc, SimulatedAnnealing(t0=1.000000e+01,n=100,numRestarts=10), 3700.0, 103.0, 46.9
+opt.experiment.FlipFlopExperiment$$anon$1@2bd1c812, GeneticAlgorithm(N=50,toMate=20,toMutate=10,iterations=200), 81699.4, 4052.0, 59.5
+opt.experiment.FlipFlopExperiment$$anon$1@6156ee8e, GeneticAlgorithm(N=200,toMate=20,toMutate=10,iterations=200), 62900.8, 4202.0, 55.7
+opt.experiment.FlipFlopExperiment$$anon$1@47b38592, GeneticAlgorithm(N=200,toMate=40,toMutate=10,iterations=200), 69399.9, 8202.0, 66.1
+opt.experiment.FlipFlopExperiment$$anon$1@31f16027, GeneticAlgorithm(N=50,toMate=20,toMutate=10,iterations=200), 24999.9, 4052.0, 56.7
+opt.experiment.FlipFlopExperiment$$anon$1@33c4ee10, GeneticAlgorithm(N=200,toMate=20,toMutate=10,iterations=200), 59485.8, 4202.0, 62.2
+opt.experiment.FlipFlopExperiment$$anon$1@66e8791, GeneticAlgorithm(N=200,toMate=40,toMutate=10,iterations=200), 71396.2, 8202.0, 65.1

@@ -1,0 +1,29 @@
+Running RandomizedHillClimbing(restarts=0,numPlateauChecks=5) on Citibike..........
+Running RandomizedHillClimbing(restarts=5,numPlateauChecks=5) on Citibike..........
+Running RandomizedHillClimbing(restarts=10,numPlateauChecks=5) on Citibike..........
+Running RandomizedHillClimbing(restarts=25,numPlateauChecks=5) on Citibike..........
+Running RandomizedHillClimbing(restarts=50,numPlateauChecks=5) on Citibike.Exception in thread "main" java.lang.NullPointerException
+	at scala.io.Source$.fromURL(Source.scala:141)
+	at opt.example.CitibikeProblem$.getDataSet(CitibikeNeuralNetworkOptimizationProblem.scala:42)
+	at opt.experiment.Util$.testNNAccuracy(Util.scala:13)
+	at opt.experiment.NeuralNetExperiment$$anonfun$generateTestMetrics$1.apply(NeuralNetExperiment.scala:50)
+	at opt.experiment.NeuralNetExperiment$$anonfun$generateTestMetrics$1.apply(NeuralNetExperiment.scala:50)
+	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:245)
+	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:245)
+	at scala.collection.immutable.List.foreach(List.scala:381)
+	at scala.collection.TraversableLike$class.map(TraversableLike.scala:245)
+	at scala.collection.immutable.List.map(List.scala:285)
+	at opt.experiment.NeuralNetExperiment.generateTestMetrics(NeuralNetExperiment.scala:50)
+	at opt.experiment.NeuralNetExperiment.generateTestMetrics(NeuralNetExperiment.scala:20)
+	at opt.experiment.Experiment$$anonfun$test$1$$anonfun$2.apply(Experiment.scala:43)
+	at opt.experiment.Experiment$$anonfun$test$1$$anonfun$2.apply(Experiment.scala:38)
+	at scala.collection.generic.GenTraversableFactory.fill(GenTraversableFactory.scala:90)
+	at opt.experiment.Util$.averageOf(Util.scala:27)
+	at opt.experiment.Experiment$$anonfun$test$1.apply(Experiment.scala:38)
+	at opt.experiment.Experiment$$anonfun$test$1.apply(Experiment.scala:35)
+	at scala.collection.immutable.List.foreach(List.scala:381)
+	at opt.experiment.Experiment.test(Experiment.scala:35)
+	at opt.experiment.NeuralNetExperiment.testRHC(NeuralNetExperiment.scala:28)
+	at opt.experiment.Test_NN_All$.runTest(NeuralNetExperiment.scala:14)
+	at opt.experiment.Experiment.main(Experiment.scala:13)
+	at opt.experiment.Test_NN_All.main(NeuralNetExperiment.scala)
