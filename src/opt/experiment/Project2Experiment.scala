@@ -1,17 +1,17 @@
 package opt.experiment
 
+import scala.util.Random
+
+import Util.testNNAccuracy
 import opt.OptimizationAlgorithm
 import opt.RandomizedHillClimbing
 import opt.SimulatedAnnealing
 import opt.example.CitibikeProblem
-import opt.ga.StandardGeneticAlgorithm
-import opt.OptimizationProblem
-import opt.prob.ProbabilisticOptimizationProblem
-import opt.HillClimbingProblem
-import opt.example.FlipFlopEvaluationFunction
 import opt.example.FixedSubsetEvaluationFunction
+import opt.example.FourPeaksEvaluationFunction
+import opt.example.KnapsackEvaluationFunction
+import opt.ga.StandardGeneticAlgorithm
 import opt.prob.MIMIC
-import opt.example.CountOnesEvaluationFunction
 
 object TestRHC extends Project2Experiment { def runTest = testRHC }
 object TestSA extends Project2Experiment { def runTest = testSA }
@@ -33,10 +33,23 @@ abstract class Project2Experiment extends Experiment {
   val testFile = "/citibike_discretized-8bins-eqwidth_normalized.test.csv"
 
   def problemGenerators: Seq[() => Problem with EvaluationCount] = Seq(
-//    () => CitibikeProblem.apply(trainFile),
-    () => new StandardGenericOptimizationProblem(new FlipFlopEvaluationFunction, 80) with EvaluationCount,
+    () => CitibikeProblem.apply(trainFile),
     () => new StandardGenericOptimizationProblem(new FixedSubsetEvaluationFunction(80, .5), 80) with EvaluationCount,
-    () => new StandardGenericOptimizationProblem(new CountOnesEvaluationFunction, 80) with EvaluationCount
+    () => new StandardGenericOptimizationProblem(new FourPeaksEvaluationFunction(20), 80) with EvaluationCount,
+    () => {
+      val NUM_ITEMS = 40
+      val COPIES_EACH = 4
+      val MAX_WEIGHT = 50
+      val MAX_VOLUME = 50
+      val KNAPSACK_VOLUME = MAX_VOLUME * NUM_ITEMS * COPIES_EACH * .4
+
+      val weights = Array.fill(NUM_ITEMS)(MAX_WEIGHT * Random.nextDouble)
+      val volumes = Array.fill(NUM_ITEMS)(MAX_VOLUME * Random.nextDouble)
+      val counts = Array.fill(NUM_ITEMS)(COPIES_EACH)
+
+      val evalFn = new KnapsackEvaluationFunction(weights, volumes, KNAPSACK_VOLUME, counts)
+      new StandardGenericOptimizationProblem(evalFn, NUM_ITEMS) with EvaluationCount
+    }
   )
 
   def testRHC = test(Seq[Problem => OptimizationAlgorithm](
@@ -50,11 +63,12 @@ abstract class Project2Experiment extends Experiment {
   ))
 
   def testSA = test(Seq[Problem => OptimizationAlgorithm](
-    (problem) => new SimulatedAnnealing(500, 10, 10, problem),
-    (problem) => new SimulatedAnnealing(500, 25, 10, problem),
-    (problem) => new SimulatedAnnealing(500, 50, 10, problem),
-    (problem) => new SimulatedAnnealing(500, 100, 10, problem),
-    (problem) => new SimulatedAnnealing(500, 500, 10, problem)
+    (problem) => new SimulatedAnnealing(1, 100, 0, problem),
+    (problem) => new SimulatedAnnealing(1, 100, 5, problem),
+    (problem) => new SimulatedAnnealing(1, 100, 10, problem),
+    (problem) => new SimulatedAnnealing(1, 100, 25, problem),
+    (problem) => new SimulatedAnnealing(1, 100, 50, problem),
+    (problem) => new SimulatedAnnealing(1, 100, 100, problem)
   ))
 
   def testGA = test(Seq[Problem => OptimizationAlgorithm](

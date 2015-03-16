@@ -31,7 +31,6 @@ abstract class Experiment {
   def test(algorithmGenerators: Seq[Problem => OptimizationAlgorithm]): Unit = {
     val out = Console.out
     val err = Console.err
-    err.close()
 
     // Neural Nets test
     for {

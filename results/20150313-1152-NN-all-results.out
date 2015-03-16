@@ -1,0 +1,6 @@
+"Citibike", "RandomizedHillClimbing(restarts=0,numPlateauChecks=5)", 2323807.4, 47.9, -6298.344548626199, 0.10217166494312306, 0.10106859703550497
+"Citibike", "RandomizedHillClimbing(restarts=5,numPlateauChecks=5)", 1.40106668E7, 336.6, -4432.0671003002435, 0.1424681144432954, 0.1415029300241296
+"Citibike", "RandomizedHillClimbing(restarts=10,numPlateauChecks=5)", 2.57596002E7, 498.2, -3603.4928818042563, 0.1868321268528094, 0.1856256463288521
+"Citibike", "RandomizedHillClimbing(restarts=25,numPlateauChecks=5)", 7.59211785E7, 1213.8, -2293.242009829261, 0.4383660806618407, 0.43809031368493623
+"Citibike", "RandomizedHillClimbing(restarts=50,numPlateauChecks=5)", 1.01338799E8, 2080.7, -2042.5218916469196, 0.44002068252326787, 0.44019303688383316
+"Citibike", "RandomizedHillClimbing(restarts=100,numPlateauChecks=5)", 2.167528437E8, 3777.1, -1918.329881899915, 0.45046535677352634, 0.4503274732850741

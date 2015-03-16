@@ -65,7 +65,7 @@ public class SimulatedAnnealing extends OptimizationAlgorithm {
         HillClimbingProblem p = (HillClimbingProblem) getOptimizationProblem();
         Instance bestCur = null;
         double bestCurVal = Double.NEGATIVE_INFINITY;
-        for (int i=0; i < numRestarts - 1; i++) {
+        for (int i=0; i < numRestarts + 1; i++) {
 	        double dt = t0 / iterations;
 	        while (t > 0) {
 	            Instance neigh = p.neighbor(cur);
@@ -81,6 +81,7 @@ public class SimulatedAnnealing extends OptimizationAlgorithm {
         		bestCur = cur;
         		bestCurVal = curVal;
         	}
+        	t = t0;
         }
         cur = bestCur;
         curVal = bestCurVal;

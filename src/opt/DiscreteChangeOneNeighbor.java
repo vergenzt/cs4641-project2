@@ -30,7 +30,7 @@ public class DiscreteChangeOneNeighbor implements NeighborFunction {
     public Instance neighbor(Instance d) {
         Instance cod = (Instance) d.copy();
         int i = Distribution.random.nextInt(ranges.length);
-        cod.getData().set(i, 1 - cod.getDiscrete(i));
+        cod.getData().set(i, Distribution.random.nextInt(ranges[i]));
         return cod;
     }
 
